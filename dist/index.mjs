@@ -22556,24 +22556,9 @@ const _BCFTopics = class _BCFTopics extends Component {
     const content = await zip.generateAsync({ type: "blob" });
     return content;
   }
-  async createBlankJPEG(width = 1, height = 1) {
-    const canvas = document.createElement("canvas");
-    canvas.width = width;
-    canvas.height = height;
-    const ctx = canvas.getContext("2d");
-    if (!ctx) throw new Error("Canvas context not available");
-    ctx.fillStyle = "#ffffff";
-    ctx.fillRect(0, 0, width, height);
-    return new Promise((resolve) => {
-      canvas.toBlob((blob) => {
-        if (!blob) throw new Error("Failed to create image blob");
-        const reader = new FileReader();
-        reader.onloadend = () => {
-          resolve(reader.result);
-        };
-        reader.readAsArrayBuffer(blob);
-      }, "image/jpeg");
-    });
+  async createBlankJPEG() {
+    const blankJPEGBase64 = "/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDABALDA4MChAODQ4SEhAREhISGBYVFxgYGBcXGhocGh0aGhkdIS4lHB4rJjgmKy8xNTU1HCQ7QDs0Py40NTEBDAwMEA8QHhISHjQhJCQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NP/AABEIAKgBLAMBIgACEQEDEQH/xAAZAAEBAQEBAQAAAAAAAAAAAAAABgEDBQT/xAAmEAABAwMDBAIDAAAAAAAAAAABAgMEAAUREiExQQYHExQiIzJx/8QAGAEBAQEBAQAAAAAAAAAAAAAAAQIDBAX/xAAdEQEBAAICAgMAAAAAAAAAAAAAARECAxIhMUEi/9oADAMBAAIRAxEAPwD7jREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQf/Z";
+    return Buffer.from(blankJPEGBase64, "base64");
   }
   serializeExtensions() {
     const types = [...this.config.types].map((type) => `<TopicType>${type}</TopicType>`).join("\n");

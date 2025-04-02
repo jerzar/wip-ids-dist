@@ -1,3 +1,5 @@
+/// <reference types="node" />
+/// <reference types="node" />
 import { XMLParser } from "fast-xml-parser";
 import { Component, Configurable, Disposable, Event, World, DataMap } from "../../core";
 import { BCFTopic, Topic, BCFTopicsConfigManager, BCFTopicsConfig } from "./src";
@@ -90,7 +92,7 @@ export declare class BCFTopics extends Component implements Disposable, Configur
      * @returns A promise that resolves to a Blob containing the exported BCF zip file.
      */
     export(topics?: Iterable<Topic>): Promise<Blob>;
-    createBlankJPEG(width?: number, height?: number): Promise<ArrayBuffer>;
+    createBlankJPEG(): Promise<Buffer>;
     private serializeExtensions;
     private processMarkupComment;
     private getMarkupComments;
