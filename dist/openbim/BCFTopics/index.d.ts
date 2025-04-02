@@ -90,6 +90,7 @@ export declare class BCFTopics extends Component implements Disposable, Configur
      * @returns A promise that resolves to a Blob containing the exported BCF zip file.
      */
     export(topics?: Iterable<Topic>): Promise<Blob>;
+    createBlankJPEG(width?: number, height?: number): Promise<ArrayBuffer>;
     private serializeExtensions;
     private processMarkupComment;
     private getMarkupComments;

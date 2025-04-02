@@ -22558,10 +22558,7 @@ const _BCFTopics = class _BCFTopics extends Component {
     </Version>`
     );
     zip.file("bcf.extensions", this.serializeExtensions());
-    const image = await fetch(
-      "https://upload.wikimedia.org/wikipedia/commons/a/a7/React-icon.svg"
-    );
-    const imgBlob = await image.arrayBuffer();
+    const imgBlob = await this.createBlankJPEG();
     const viewpoints = this.components.get(Viewpoints);
     for (const topic of topics) {
       const topicFolder = zip.folder(topic.guid);
@@ -22577,6 +22574,25 @@ const _BCFTopics = class _BCFTopics extends Component {
     }
     const content = await zip.generateAsync({ type: "blob" });
     return content;
+  }
+  async createBlankJPEG(width = 1, height = 1) {
+    const canvas = document.createElement("canvas");
+    canvas.width = width;
+    canvas.height = height;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) throw new Error("Canvas context not available");
+    ctx.fillStyle = "#ffffff";
+    ctx.fillRect(0, 0, width, height);
+    return new Promise((resolve) => {
+      canvas.toBlob((blob) => {
+        if (!blob) throw new Error("Failed to create image blob");
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          resolve(reader.result);
+        };
+        reader.readAsArrayBuffer(blob);
+      }, "image/jpeg");
+    });
   }
   serializeExtensions() {
     const types = [...this.config.types].map((type) => `<TopicType>${type}</TopicType>`).join("\n");
@@ -26623,7 +26639,8 @@ class IDSFacet {
     if (!GlobalId) return;
     const { value: guid } = GlobalId;
     const result = {
-      expressID: guid,
+      guid,
+      expressID: attrs.expressID,
       pass,
       checks: [],
       cardinality: this.cardinality
@@ -27667,8 +27684,13 @@ const getParameterValue = (property) => {
     }
     if ("enumeration" in restriction) {
       result.type = "enumeration";
-      const enumeration = restriction.enumeration.map(
-        ({ value }) => value
+      const rawEnum = restriction.enumeration;
+      const enumerationArray = Array.isArray(rawEnum) ? rawEnum : [rawEnum];
+      const enumeration = enumerationArray.map(
+        (item) => {
+          var _a;
+          return "value" in item ? item.value : (_a = item == null ? void 0 : item.$) == null ? void 0 : _a.value;
+        }
       );
       result.parameter = enumeration;
     }
@@ -28039,7 +28061,9 @@ class IDSPartOf extends IDSFacet {
         for (const relID of relIDs) {
           const relAttrs = await model.getProperties(relID);
           if (!relAttrs) continue;
-          const entityMatches = relAttrs.type === this.entity;
+          const expectedEntityName = this.entity.name.parameter;
+          const actualEntityName = IfcCategoryMap[relAttrs.type];
+          const entityMatches = actualEntityName === expectedEntityName;
           if (!entityMatches) continue;
           matches = true;
           break;
