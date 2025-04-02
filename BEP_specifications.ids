@@ -1,0 +1,955 @@
+<?xml version="1.0"?>
+<ids:ids xmlns:ids="http://standards.buildingsmart.org/IDS" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://standards.buildingsmart.org/IDS http://standards.buildingsmart.org/IDS/1.0/ids.xsd">
+  <ids:info xmlns:ids="ids">
+    <ids:title>Substation Naming</ids:title>
+    <ids:author>sergio.mirallasesteban@axpo.com</ids:author>
+    <ids:copyright>AXPO</ids:copyright>
+    <ids:version>0.1</ids:version>
+    <ids:date>2025-03-04</ids:date>
+    <ids:milestone>Maintenance</ids:milestone>
+    <ids:purpose>Define BIM requirements for substations</ids:purpose>
+    <ids:description>IDS file for validating elements in substations</ids:description>
+  </ids:info>
+  <ids:specifications xmlns:ids="ids">
+    <ids:specification name="SLAB that fails" ifcVersion="IFC4" identifier="SPEC-600">
+      <ids:description>IFCSLAB that should fail</ids:description>
+      <ids:instructions>Ensure fail.</ids:instructions>
+      <ids:applicability>
+        <ids:entity>
+          <ids:name>
+            <ids:simpleValue>IFCSLAB</ids:simpleValue>
+          </ids:name>
+        </ids:entity>
+      </ids:applicability>
+      <ids:requirements>
+        <ids:attribute instructions="Name">
+          <ids:name>
+            <ids:simpleValue>Name</ids:simpleValue>
+          </ids:name>
+          <ids:value>
+            <xs:restriction xmlns:xs="xs" base="xs:string">
+              <xs:pattern value="APPARATEF(typpo)UNDAMENT_.*"/>
+            </xs:restriction>
+          </ids:value>
+        </ids:attribute>
+      </ids:requirements>
+    </ids:specification>
+    <ids:specification name="IFCELECTRICAPPLIANCE BK" ifcVersion="IFC4" identifier="SPEC-500" description="MESSWANDLER that should pass" instructions="Include BK">
+      <ids:applicability>
+        <ids:entity>
+          <ids:name>
+            <ids:simpleValue>IFCELECTRICAPPLIANCE</ids:simpleValue>
+          </ids:name>
+        </ids:entity>
+        <ids:property>
+            <ids:propertySet>
+              <ids:simpleValue>BAUTEIL_BETRIEB</ids:simpleValue>
+            </ids:propertySet>
+            <ids:baseName>
+              <ids:simpleValue>NAME (-)</ids:simpleValue>
+            </ids:baseName>
+            <ids:value>
+              <xs:restriction base="xs:string">
+                <xs:pattern value=".*WANDLER.*"></xs:pattern>
+              </xs:restriction>
+            </ids:value>
+        </ids:property>
+      </ids:applicability>
+      <ids:requirements>
+        <ids:property cardinality="required">
+          <ids:propertySet>
+            <ids:simpleValue>BAUTEIL_BETRIEB</ids:simpleValue>
+          </ids:propertySet>
+          <ids:baseName>
+            <ids:simpleValue>SERIENUMMER (-)</ids:simpleValue>
+          </ids:baseName>
+          <ids:value>
+            <xs:restriction base="xs:integer">
+              <xs:pattern value="[0-9]+"></xs:pattern>
+            </xs:restriction>
+          </ids:value>
+        </ids:property>
+      </ids:requirements>
+    </ids:specification>    
+    <ids:specification name="Substation Site Attributes" ifcVersion="IFC4" identifier="SPEC-001">
+      <ids:description>Ensure IfcSite has the required attribute group UNTERWERK_BETRIEB and specific attributes</ids:description>
+      <ids:instructions>Ensure IfcSite includes the UNTERWERK_BETRIEB group with NAME and TECHNISCHERPLATZ attributes</ids:instructions>
+      <ids:cardinality>Required</ids:cardinality>
+      <ids:applicability>
+        <ids:entity>
+          <ids:name>
+            <ids:simpleValue>IFCSITE</ids:simpleValue>
+          </ids:name>
+        </ids:entity>
+      </ids:applicability>
+      <ids:requirements>
+        <ids:property>
+          <ids:propertySet>
+            <ids:simpleValue>UNTERWERK_BETRIEB</ids:simpleValue>
+          </ids:propertySet>
+          <ids:baseName>
+            <ids:simpleValue>NAME (-)</ids:simpleValue>
+          </ids:baseName>
+          <ids:value>
+            <xs:restriction xmlns:xs="xs" base="xs:string">
+              <xs:pattern value="UW_.*"/>
+            </xs:restriction>
+          </ids:value>
+          <ids:description>Ensures that the NAME attribute in UNTERWERK_BETRIEB follows the correct pattern.</ids:description>
+          <ids:instructions>The NAME attribute must start with 'UW_' followed by any characters.</ids:instructions>
+        </ids:property>
+        <ids:property>
+          <ids:propertySet>
+            <ids:simpleValue>UNTERWERK_BETRIEB</ids:simpleValue>
+          </ids:propertySet>
+          <ids:baseName>
+            <ids:simpleValue>TECHNISCHERPLATZ (-)</ids:simpleValue>
+          </ids:baseName>
+          <ids:value>
+            <xs:restriction xmlns:xs="xs" base="xs:string">
+              <xs:pattern value="[A-Z]{2}[0-9]{2}"/>
+            </xs:restriction>
+          </ids:value>
+          <ids:description>Ensures that the TECHNISCHERPLATZ attribute in UNTERWERK_BETRIEB follows the correct pattern.</ids:description>
+          <ids:instructions>The TECHNISCHERPLATZ attribute must follow the format: two uppercase letters followed by two digits.</ids:instructions>
+        </ids:property>
+      </ids:requirements>
+    </ids:specification>
+    <ids:specification name="IFCBUILDING Parent Validation" ifcVersion="IFC4" identifier="SPEC-002">
+      <ids:description>Ensure IFCBUILDING elements are part of an IfcSite</ids:description>
+      <ids:instructions>All IFCBUILDING elements must be contained within an IfcSite</ids:instructions>
+      <ids:cardinality>Required</ids:cardinality>
+      <ids:applicability>
+        <ids:entity>
+          <ids:name>
+            <ids:simpleValue>IFCBUILDING</ids:simpleValue>
+          </ids:name>
+        </ids:entity>
+      </ids:applicability>
+      <ids:requirements>
+        <ids:partOf relation="IFCRELAGGREGATES">
+          <ids:entity>
+          <ids:name>
+            <ids:simpleValue>IFCSITE</ids:simpleValue>
+           </ids:name>
+         </ids:entity>
+        </ids:partOf>
+      </ids:requirements>
+    </ids:specification>
+    <ids:specification name="IFCBUILDING Name Validation" ifcVersion="IFC4" identifier="SPEC-003">
+      <ids:description>Ensure IFCBUILDING elements have a valid NAME attribute</ids:description>
+      <ids:instructions>NAME must match one of the predefined values or patterns</ids:instructions>
+      <ids:cardinality>Required</ids:cardinality>
+      <ids:applicability>
+        <ids:entity>
+          <ids:name>
+            <ids:simpleValue>IFCBUILDING</ids:simpleValue>
+          </ids:name>
+        </ids:entity>
+        <ids:property>
+          <ids:name>
+            <ids:simpleValue>IFCBUILDING</ids:simpleValue>
+          </ids:name>
+          <ids:propertySet>
+            <ids:simpleValue>ANLAGEKLASSE_BETRIEB</ids:simpleValue>
+          </ids:propertySet>
+          <ids:baseName>
+            <ids:simpleValue>NAME (-)</ids:simpleValue>
+          </ids:baseName>
+        </ids:property>
+      </ids:applicability>
+      <ids:requirements>
+        <ids:property>
+          <ids:propertySet>
+            <ids:simpleValue>ANLAGEKLASSE_BETRIEB</ids:simpleValue>
+          </ids:propertySet>
+          <ids:baseName>
+            <ids:simpleValue>NAME (-)</ids:simpleValue>
+          </ids:baseName>
+          <ids:value>
+            <xs:restriction xmlns:xs="xs" base="xs:string">
+              <xs:enumeration value="SCHALTANLAGE_380kV"/>
+              <xs:enumeration value="SCHALTANLAGE_220kV"/>
+              <xs:enumeration value="SCHALTANLAGE_110kV"/>
+              <xs:enumeration value="SCHALTANLAGE_50kV"/>
+              <xs:enumeration value="SCHALTANLAGE_16kV"/>
+              <xs:enumeration value="EB_TRANSFORMATION"/>
+              <xs:enumeration value="GRUNDST&#xDC;CK"/>
+              <xs:enumeration value="BETRIEBSGEB&#xC4;UDE"/>
+              <xs:enumeration value="GROSSRELAISTATION"/>
+              <xs:enumeration value="AUTOWASCHANLAGE"/>
+              <xs:enumeration value="EIGENBEDARFSGEB&#xC4;UDE"/>
+              <xs:enumeration value="WERKSTATTGEB&#xC4;UDE"/>
+              <xs:enumeration value="FREILEITERGEB&#xC4;UDE"/>
+              <xs:enumeration value="AC_EIGENBEDARFSANLAGE"/>
+              <xs:enumeration value="DC_EIGENBEDARFSANLAGE"/>
+              <xs:enumeration value="GEB&#xC4;UDETECHNIK_BETRIEBSGEB&#xC4;UDE"/>
+              <xs:enumeration value="STATIONSLEITTECHNIK"/>
+              <xs:enumeration value="BETRIEBSF&#xDC;HRUNGSSYSTEM"/>
+            </xs:restriction>
+          </ids:value>
+        </ids:property>
+        <ids:property>
+          <ids:propertySet>
+            <ids:simpleValue>ANLAGEKLASSE_BETRIEB</ids:simpleValue>
+          </ids:propertySet>
+          <ids:baseName>
+            <ids:simpleValue>NAME (-)</ids:simpleValue>
+          </ids:baseName>
+          <ids:value>
+            <xs:restriction xmlns:xs="xs" base="xs:string">
+              <xs:enumeration value="TRANSFORMATION_NETZEBENE_[0-9]+/[0-9]+"/>
+            </xs:restriction>
+          </ids:value>
+        </ids:property>
+      </ids:requirements>
+    </ids:specification>
+    <ids:specification name="IFCBUILDING Attributes for SCHALTANLAGE_XXXkV" ifcVersion="IFC4" identifier="SPEC-004A">
+      <ids:description>Ensure IFCBUILDING with NAME SCHALTANLAGE_XXXkV has correct attributes</ids:description>
+      <ids:instructions>TECHNISCHERPLATZ must follow the pattern @@##-@# and TYP must be one of the predefined values</ids:instructions>
+      <ids:cardinality>Required</ids:cardinality>
+      <ids:applicability>
+        <ids:entity>
+          <ids:name>
+            <ids:simpleValue>IFCBUILDING</ids:simpleValue>
+          </ids:name>
+        </ids:entity>
+        <ids:property>
+          <ids:propertySet>
+            <ids:simpleValue>ANLAGEKLASSE_BETRIEB</ids:simpleValue>
+          </ids:propertySet>
+          <ids:baseName>
+            <ids:simpleValue>NAME (-)</ids:simpleValue>
+          </ids:baseName>
+          <ids:value>
+            <xs:restriction xmlns:xs="xs" base="xs:string">
+              <xs:enumeration value="SCHALTANLAGE_380kV"/>
+              <xs:enumeration value="SCHALTANLAGE_220kV"/>
+              <xs:enumeration value="SCHALTANLAGE_110kV"/>
+              <xs:enumeration value="SCHALTANLAGE_50kV"/>
+              <xs:enumeration value="SCHALTANLAGE_16kV"/>
+            </xs:restriction>
+          </ids:value>
+        </ids:property>
+      </ids:applicability>
+      <ids:requirements>
+        <ids:property>
+          <ids:propertySet>
+            <ids:simpleValue>ANLAGEKLASSE_BETRIEB</ids:simpleValue>
+          </ids:propertySet>
+          <ids:baseName>
+            <ids:simpleValue>TECHNISCHERPLATZ (-)</ids:simpleValue>
+          </ids:baseName>
+          <ids:value>
+            <xs:restriction xmlns:xs="xs" base="xs:string">
+              <xs:pattern value="[A-Z]{2}[0-9]{2}-[A-Z][0-9]"/>
+            </xs:restriction>
+          </ids:value>
+        </ids:property>
+        <ids:property>
+          <ids:propertySet>
+            <ids:simpleValue>ANLAGEKLASSE_BETRIEB</ids:simpleValue>
+          </ids:propertySet>
+          <ids:baseName>
+            <ids:simpleValue>TYP (-)</ids:simpleValue>
+          </ids:baseName>
+          <ids:value>
+            <xs:restriction xmlns:xs="xs" base="xs:string">
+              <xs:enumeration value="SCHALTANLAGE_AIS"/>
+              <xs:enumeration value="SCHALTANLAGE_GIS"/>
+            </xs:restriction>
+          </ids:value>
+        </ids:property>
+      </ids:requirements>
+    </ids:specification>
+    <ids:specification name="IFCBUILDING Attributes for EB_TRANSFORMATION and TRANSFORMATION_NETZEBENE" ifcVersion="IFC4" identifier="SPEC-004B">
+      <ids:description>Ensure IFCBUILDING with NAME EB_TRANSFORMATION or TRANSFORMATION_NETZEBENE_X/Y has correct attributes</ids:description>
+      <ids:instructions>TECHNISCHERPLATZ must follow the pattern @@##-@##</ids:instructions>
+      <ids:cardinality>Required</ids:cardinality>
+      <ids:applicability>
+        <ids:entity>
+          <ids:name>
+            <ids:simpleValue>IFCBUILDING</ids:simpleValue>
+          </ids:name>
+        </ids:entity>
+        <ids:property>
+          <ids:propertySet>
+            <ids:simpleValue>ANLAGEKLASSE_BETRIEB</ids:simpleValue>
+          </ids:propertySet>
+          <ids:baseName>
+            <ids:simpleValue>NAME (-)</ids:simpleValue>
+          </ids:baseName>
+          <ids:value>
+            <xs:restriction xmlns:xs="xs" base="xs:string">
+              <xs:pattern value="EB_TRANSFORMATION"/>
+            </xs:restriction>
+          </ids:value>
+        </ids:property>
+        <ids:property>
+          <ids:propertySet>
+            <ids:simpleValue>ANLAGEKLASSE_BETRIEB</ids:simpleValue>
+          </ids:propertySet>
+          <ids:baseName>
+            <ids:simpleValue>NAME (-)</ids:simpleValue>
+          </ids:baseName>
+          <ids:value>
+            <xs:restriction xmlns:xs="xs" base="xs:string">
+              <xs:pattern value="TRANSFORMATION_NETZEBENE_[0-9]+/[0-9]+"/>
+            </xs:restriction>
+          </ids:value>
+        </ids:property>
+      </ids:applicability>
+      <ids:requirements>
+        <ids:property>
+          <ids:propertySet>
+            <ids:simpleValue>ANLAGEKLASSE_BETRIEB</ids:simpleValue>
+          </ids:propertySet>
+          <ids:baseName>
+            <ids:simpleValue>TECHNISCHERPLATZ (-)</ids:simpleValue>
+          </ids:baseName>
+          <ids:value>
+            <xs:restriction xmlns:xs="xs" base="xs:string">
+              <xs:pattern value="[A-Z]{2}[0-9]{2}-[A-Z][0-9]{2}"/>
+            </xs:restriction>
+          </ids:value>
+        </ids:property>
+      </ids:requirements>
+    </ids:specification>
+    <ids:specification name="IFCBUILDING Attributes for GRUNDST&#xDC;CK" ifcVersion="IFC4" identifier="SPEC-004C">
+      <ids:description>Ensure IFCBUILDING with NAME GRUNDST&#xDC;CK has correct attributes</ids:description>
+      <ids:instructions>TECHNISCHERPLATZ must follow the pattern @@##-@@</ids:instructions>
+      <ids:cardinality>Required</ids:cardinality>
+      <ids:applicability>
+        <ids:entity>
+          <ids:name>
+            <ids:simpleValue>IFCBUILDING</ids:simpleValue>
+          </ids:name>
+        </ids:entity>
+        <ids:property>
+          <ids:propertySet>
+            <ids:simpleValue>ANLAGEKLASSE_BETRIEB</ids:simpleValue>
+          </ids:propertySet>
+          <ids:baseName>
+            <ids:simpleValue>NAME (-)</ids:simpleValue>
+          </ids:baseName>
+          <ids:value>
+            <xs:restriction xmlns:xs="xs" base="xs:string">
+              <xs:pattern value="GRUNDST&#xDC;CK"/>
+            </xs:restriction>
+          </ids:value>
+        </ids:property>
+      </ids:applicability>
+      <ids:requirements>
+        <ids:property>
+          <ids:propertySet>
+            <ids:simpleValue>ANLAGEKLASSE_BETRIEB</ids:simpleValue>
+          </ids:propertySet>
+          <ids:baseName>
+            <ids:simpleValue>TECHNISCHERPLATZ (-)</ids:simpleValue>
+          </ids:baseName>
+          <ids:value>
+            <xs:restriction xmlns:xs="xs" base="xs:string">
+              <xs:pattern value="[A-Z]{2}[0-9]{2}-[A-Z]{2}"/>
+            </xs:restriction>
+          </ids:value>
+        </ids:property>
+      </ids:requirements>
+    </ids:specification>
+    <ids:specification name="IFCBUILDING Attributes for BETRIEBSGEB&#xC4;UDE" ifcVersion="IFC4" identifier="SPEC-004D">
+      <ids:description>Ensure IFCBUILDING with NAME BETRIEBSGEB&#xC4;UDE, GROSSRELAISTATION, AUTOWASCHANLAGE, EIGENBEDARFSGEB&#xC4;UDE, WERKSTATTGEB&#xC4;UDE, FREILEITERGEB&#xC4;UDE has correct attributes</ids:description>
+      <ids:instructions>TECHNISCHERPLATZ must follow the pattern @@##-@@</ids:instructions>
+      <ids:cardinality>Required</ids:cardinality>
+      <ids:applicability>
+        <ids:entity>
+          <ids:name>
+            <ids:simpleValue>IFCBUILDING</ids:simpleValue>
+          </ids:name>
+        </ids:entity>
+        <ids:property>
+          <ids:propertySet>
+            <ids:simpleValue>ANLAGEKLASSE_BETRIEB</ids:simpleValue>
+          </ids:propertySet>
+          <ids:baseName>
+            <ids:simpleValue>NAME (-)</ids:simpleValue>
+          </ids:baseName>
+          <ids:value>
+            <xs:restriction xmlns:xs="xs" base="xs:string">
+              <xs:enumeration value="BETRIEBSGEB&#xC4;UDE"/>
+              <xs:enumeration value="GROSSRELAISTATION"/>
+              <xs:enumeration value="AUTOWASCHANLAGE"/>
+              <xs:enumeration value="EIGENBEDARFSGEB&#xC4;UDE"/>
+              <xs:enumeration value="WERKSTATTGEB&#xC4;UDE"/>
+              <xs:enumeration value="FREILEITERGEB&#xC4;UDE"/>
+            </xs:restriction>
+          </ids:value>
+        </ids:property>
+      </ids:applicability>
+      <ids:requirements>
+        <ids:property>
+          <ids:propertySet>
+            <ids:simpleValue>ANLAGEKLASSE_BETRIEB</ids:simpleValue>
+          </ids:propertySet>
+          <ids:baseName>
+            <ids:simpleValue>TECHNISCHERPLATZ (-)</ids:simpleValue>
+          </ids:baseName>
+          <ids:value>
+            <xs:restriction xmlns:xs="xs" base="xs:string">
+              <xs:pattern value="[A-Z]{2}[0-9]{2}-[A-Z]{2}"/>
+            </xs:restriction>
+          </ids:value>
+        </ids:property>
+      </ids:requirements>
+    </ids:specification>
+    <ids:specification name="IFCBUILDING Attributes for AC_EIGENBEDARFSANLAGE" ifcVersion="IFC4" identifier="SPEC-004E">
+      <ids:description>Ensure IFCBUILDING with NAME AC_EIGENBEDARFSANLAGE has correct attributes</ids:description>
+      <ids:instructions>TECHNISCHERPLATZ must follow the pattern @@##-@@##, @@##-@@#, @@##-@##</ids:instructions>
+      <ids:cardinality>Required</ids:cardinality>
+      <ids:applicability>
+        <ids:entity>
+          <ids:name>
+            <ids:simpleValue>IFCBUILDING</ids:simpleValue>
+          </ids:name>
+        </ids:entity>
+        <ids:property>
+          <ids:propertySet>
+            <ids:simpleValue>ANLAGEKLASSE_BETRIEB</ids:simpleValue>
+          </ids:propertySet>
+          <ids:baseName>
+            <ids:simpleValue>NAME (-)</ids:simpleValue>
+          </ids:baseName>
+          <ids:value>
+            <xs:restriction xmlns:xs="xs" base="xs:string">
+              <xs:pattern value="AC_EIGENBEDARFSANLAGE"/>
+            </xs:restriction>
+          </ids:value>
+        </ids:property>
+      </ids:applicability>
+      <ids:requirements>
+        <ids:property>
+          <ids:propertySet>
+            <ids:simpleValue>ANLAGEKLASSE_BETRIEB</ids:simpleValue>
+          </ids:propertySet>
+          <ids:baseName>
+            <ids:simpleValue>TECHNISCHERPLATZ (-)</ids:simpleValue>
+          </ids:baseName>
+          <ids:value>
+            <xs:restriction xmlns:xs="xs" base="xs:string">
+              <xs:pattern value="[A-Z]{2}[0-9]{2}-[A-Z]{2}[0-9]{2}"/>
+              <xs:pattern value="[A-Z]{2}[0-9]{2}-[A-Z]{2}[0-9]"/>
+              <xs:pattern value="[A-Z]{2}[0-9]{2}-[A-Z][0-9]{2}"/>
+            </xs:restriction>
+          </ids:value>
+        </ids:property>
+      </ids:requirements>
+    </ids:specification>
+    <ids:specification name="IFCBUILDING Attributes for DC_EIGENBEDARFSANLAGE" ifcVersion="IFC4" identifier="SPEC-004F">
+      <ids:description>Ensure IFCBUILDING with NAME DC_EIGENBEDARFSANLAGE has correct attributes</ids:description>
+      <ids:instructions>TECHNISCHERPLATZ must follow the pattern @@##-@@##, @@##-@@#, @@##-@##</ids:instructions>
+      <ids:cardinality>Required</ids:cardinality>
+      <ids:applicability>
+        <ids:entity>
+          <ids:name>
+            <ids:simpleValue>IFCBUILDING</ids:simpleValue>
+          </ids:name>
+        </ids:entity>
+        <ids:property>
+          <ids:propertySet>
+            <ids:simpleValue>ANLAGEKLASSE_BETRIEB</ids:simpleValue>
+          </ids:propertySet>
+          <ids:baseName>
+            <ids:simpleValue>NAME (-)</ids:simpleValue>
+          </ids:baseName>
+          <ids:value>
+            <xs:restriction xmlns:xs="xs" base="xs:string">
+              <xs:pattern value="DC_EIGENBEDARFSANLAGE"/>
+            </xs:restriction>
+          </ids:value>
+        </ids:property>
+      </ids:applicability>
+      <ids:requirements>
+        <ids:property>
+          <ids:propertySet>
+            <ids:simpleValue>ANLAGEKLASSE_BETRIEB</ids:simpleValue>
+          </ids:propertySet>
+          <ids:baseName>
+            <ids:simpleValue>TECHNISCHERPLATZ (-)</ids:simpleValue>
+          </ids:baseName>
+          <ids:value>
+            <xs:restriction xmlns:xs="xs" base="xs:string">
+              <xs:pattern value="[A-Z]{2}[0-9]{2}-[A-Z]{2}[0-9]{2}"/>
+              <xs:pattern value="[A-Z]{2}[0-9]{2}-[A-Z]{2}[0-9]"/>
+              <xs:pattern value="[A-Z]{2}[0-9]{2}-[A-Z][0-9]{2}"/>
+            </xs:restriction>
+          </ids:value>
+        </ids:property>
+      </ids:requirements>
+    </ids:specification>
+    <ids:specification name="IFCBUILDING Attributes for GEB&#xC4;UDETECHNIK_BETRIEBSGEB&#xC4;UDE" ifcVersion="IFC4" identifier="SPEC-004G">
+      <ids:description>Ensure IFCBUILDING with NAME GEB&#xC4;UDETECHNIK_BETRIEBSGEB&#xC4;UDE has correct attributes</ids:description>
+      <ids:instructions>TECHNISCHERPLATZ must follow the pattern @@##-@#</ids:instructions>
+      <ids:cardinality>Required</ids:cardinality>
+      <ids:applicability>
+        <ids:entity>
+          <ids:name>
+            <ids:simpleValue>IFCBUILDING</ids:simpleValue>
+          </ids:name>
+        </ids:entity>
+        <ids:property>
+          <ids:propertySet>
+            <ids:simpleValue>ANLAGEKLASSE_BETRIEB</ids:simpleValue>
+          </ids:propertySet>
+          <ids:baseName>
+            <ids:simpleValue>NAME (-)</ids:simpleValue>
+          </ids:baseName>
+          <ids:value>
+            <xs:restriction xmlns:xs="xs" base="xs:string">
+              <xs:pattern value="GEB&#xC4;UDETECHNIK_BETRIEBSGEB&#xC4;UDE"/>
+            </xs:restriction>
+          </ids:value>
+        </ids:property>
+      </ids:applicability>
+      <ids:requirements>
+        <ids:property>
+          <ids:propertySet>
+            <ids:simpleValue>ANLAGEKLASSE_BETRIEB</ids:simpleValue>
+          </ids:propertySet>
+          <ids:baseName>
+            <ids:simpleValue>TECHNISCHERPLATZ (-)</ids:simpleValue>
+          </ids:baseName>
+          <ids:value>
+            <xs:restriction xmlns:xs="xs" base="xs:string">
+              <xs:pattern value="[A-Z]{2}[0-9]{2}-[A-Z][0-9]"/>
+            </xs:restriction>
+          </ids:value>
+        </ids:property>
+      </ids:requirements>
+    </ids:specification>
+    <ids:specification name="IFCBUILDING Attributes for STATIONSLEITTECHNIK" ifcVersion="IFC4" identifier="SPEC-004H">
+      <ids:description>Ensure IFCBUILDING with NAME STATIONSLEITTECHNIK has correct attributes</ids:description>
+      <ids:instructions>TECHNISCHERPLATZ must follow the pattern @@##-@#</ids:instructions>
+      <ids:cardinality>Required</ids:cardinality>
+      <ids:applicability>
+        <ids:entity>
+          <ids:name>
+            <ids:simpleValue>IFCBUILDING</ids:simpleValue>
+          </ids:name>
+        </ids:entity>
+        <ids:property>
+          <ids:propertySet>
+            <ids:simpleValue>ANLAGEKLASSE_BETRIEB</ids:simpleValue>
+          </ids:propertySet>
+          <ids:baseName>
+            <ids:simpleValue>NAME (-)</ids:simpleValue>
+          </ids:baseName>
+          <ids:value>
+            <xs:restriction xmlns:xs="xs" base="xs:string">
+              <xs:pattern value="STATIONSLEITTECHNIK"/>
+            </xs:restriction>
+          </ids:value>
+        </ids:property>
+      </ids:applicability>
+      <ids:requirements>
+        <ids:property>
+          <ids:propertySet>
+            <ids:simpleValue>ANLAGEKLASSE_BETRIEB</ids:simpleValue>
+          </ids:propertySet>
+          <ids:baseName>
+            <ids:simpleValue>TECHNISCHERPLATZ (-)</ids:simpleValue>
+          </ids:baseName>
+          <ids:value>
+            <xs:restriction xmlns:xs="xs" base="xs:string">
+              <xs:pattern value="[A-Z]{2}[0-9]{2}-[A-Z][0-9]"/>
+            </xs:restriction>
+          </ids:value>
+        </ids:property>
+      </ids:requirements>
+    </ids:specification>
+    <ids:specification name="IFCBUILDING Attributes for BETRIEBSF&#xDC;HRUNGSSYSTEM" ifcVersion="IFC4" identifier="SPEC-004I">
+      <ids:description>Ensure IFCBUILDING with NAME BETRIEBSF&#xDC;HRUNGSSYSTEM has correct attributes</ids:description>
+      <ids:instructions>TECHNISCHERPLATZ must follow the pattern @@##-@#</ids:instructions>
+      <ids:cardinality>Required</ids:cardinality>
+      <ids:applicability>
+        <ids:entity>
+          <ids:name>
+            <ids:simpleValue>IFCBUILDING</ids:simpleValue>
+          </ids:name>
+        </ids:entity>
+        <ids:property>
+          <ids:propertySet>
+            <ids:simpleValue>ANLAGEKLASSE_BETRIEB</ids:simpleValue>
+          </ids:propertySet>
+          <ids:baseName>
+            <ids:simpleValue>NAME (-)</ids:simpleValue>
+          </ids:baseName>
+          <ids:value>
+            <xs:restriction xmlns:xs="xs" base="xs:string">
+              <xs:pattern value="BETRIEBSF&#xDC;HRUNGSSYSTEM"/>
+            </xs:restriction>
+          </ids:value>
+        </ids:property>
+      </ids:applicability>
+      <ids:requirements>
+        <ids:property>
+          <ids:propertySet>
+            <ids:simpleValue>ANLAGEKLASSE_BETRIEB</ids:simpleValue>
+          </ids:propertySet>
+          <ids:baseName>
+            <ids:simpleValue>TECHNISCHERPLATZ (-)</ids:simpleValue>
+          </ids:baseName>
+          <ids:value>
+            <xs:restriction xmlns:xs="xs" base="xs:string">
+              <xs:pattern value="[A-Z]{2}[0-9]{2}-[A-Z][0-9]"/>
+            </xs:restriction>
+          </ids:value>
+        </ids:property>
+      </ids:requirements>
+    </ids:specification>
+    <ids:specification name="IfcBuildingStorey Attributes for SPANNUNGSEBENE" ifcVersion="IFC4" identifier="SPEC-005A">
+      <ids:description>Ensure IfcBuildingStorey in an IFCBUILDING with Anlageklasse SPANNUNGSEBENE has correct attributes</ids:description>
+      <ids:instructions>NAME must follow the pattern SCHALTFELD_ and TECHNISCHERPLATZ must follow @@##-@#-@##</ids:instructions>
+      <ids:cardinality>Required</ids:cardinality>
+      <ids:applicability>
+        <ids:entity>
+          <ids:name>
+            <ids:simpleValue>IFCBUILDING</ids:simpleValue>
+          </ids:name>
+        </ids:entity>
+        <ids:property>
+          <ids:propertySet>
+            <ids:simpleValue>ANLAGEKLASSE_BETRIEB</ids:simpleValue>
+          </ids:propertySet>
+          <ids:baseName>
+            <ids:simpleValue>NAME (-)</ids:simpleValue>
+          </ids:baseName>
+          <ids:value>
+            <xs:restriction xmlns:xs="xs" base="xs:string">
+              <xs:enumeration value="SCHALTANLAGE_380kV"/>
+              <xs:enumeration value="SCHALTANLAGE_220kV"/>
+              <xs:enumeration value="SCHALTANLAGE_110kV"/>
+              <xs:enumeration value="SCHALTANLAGE_50kV"/>
+              <xs:enumeration value="SCHALTANLAGE_16kV"/>
+            </xs:restriction>
+          </ids:value>
+        </ids:property>
+      </ids:applicability>
+      <ids:requirements>
+        <ids:property>
+          <ids:propertySet>
+            <ids:simpleValue>ANLAGE_BETRIEB</ids:simpleValue>
+          </ids:propertySet>
+          <ids:baseName>
+            <ids:simpleValue>NAME (-)</ids:simpleValue>
+          </ids:baseName>
+          <ids:value>
+            <xs:restriction xmlns:xs="xs" base="xs:string">
+              <xs:pattern value="SCHALTFELD_.*"/>
+            </xs:restriction>
+          </ids:value>
+        </ids:property>
+        <ids:property>
+          <ids:propertySet>
+            <ids:simpleValue>ANLAGE_BETRIEB</ids:simpleValue>
+          </ids:propertySet>
+          <ids:baseName>
+            <ids:simpleValue>TECHNISCHERPLATZ (-)</ids:simpleValue>
+          </ids:baseName>
+          <ids:value>
+            <xs:restriction xmlns:xs="xs" base="xs:string">
+              <xs:pattern value="[A-Z]{2}[0-9]{2}-[A-Z][0-9]-[A-Z][0-9]{2}"/>
+            </xs:restriction>
+          </ids:value>
+        </ids:property>
+        <ids:property>
+          <ids:propertySet>
+            <ids:simpleValue>ANLAGE_BETRIEB</ids:simpleValue>
+          </ids:propertySet>
+          <ids:baseName>
+            <ids:simpleValue>EIGENT&#xDC;MER (-)</ids:simpleValue>
+          </ids:baseName>
+        </ids:property>
+      </ids:requirements>
+    </ids:specification>
+    <ids:specification name="IfcBuildingStorey Attributes for TRANSFORMATIONSEBENE" ifcVersion="IFC4" identifier="SPEC-005B">
+      <ids:description>Ensure IfcBuildingStorey in an IFCBUILDING with NAME TRANSFORMATIONSEBENE has correct attributes</ids:description>
+      <ids:instructions>NAME must follow the pattern TRANSFORMATION_###_(###_MVA), EB_TRANSFORMATOR_### and TECHNISCHERPLATZ must follow @@##-@#-@@##</ids:instructions>
+      <ids:cardinality>Required</ids:cardinality>
+      <ids:applicability>
+        <ids:entity>
+          <ids:name>
+            <ids:simpleValue>IFCBUILDING</ids:simpleValue>
+          </ids:name>
+        </ids:entity>
+        <ids:property>
+          <ids:propertySet>
+            <ids:simpleValue>ANLAGEKLASSE_BETRIEB</ids:simpleValue>
+          </ids:propertySet>
+          <ids:baseName>
+            <ids:simpleValue>NAME (-)</ids:simpleValue>
+          </ids:baseName>
+          <ids:value>
+            <xs:restriction xmlns:xs="xs" base="xs:string">
+              <xs:pattern value="EB_TRANSFORMATION"/>
+            </xs:restriction>
+          </ids:value>
+        </ids:property>
+        <ids:property>
+          <ids:propertySet>
+            <ids:simpleValue>ANLAGEKLASSE_BETRIEB</ids:simpleValue>
+          </ids:propertySet>
+          <ids:baseName>
+            <ids:simpleValue>NAME (-)</ids:simpleValue>
+          </ids:baseName>
+          <ids:value>
+            <xs:restriction xmlns:xs="xs" base="xs:string">
+              <xs:pattern value="TRANSFORMATION_NETZEBENE_[0-9]+/[0-9]+"/>
+            </xs:restriction>
+          </ids:value>
+        </ids:property>
+      </ids:applicability>
+      <ids:requirements>
+        <ids:property>
+          <ids:propertySet>
+            <ids:simpleValue>ANLAGE_BETRIEB</ids:simpleValue>
+          </ids:propertySet>
+          <ids:baseName>
+            <ids:simpleValue>NAME (-)</ids:simpleValue>
+          </ids:baseName>
+          <ids:value>
+            <xs:restriction xmlns:xs="xs" base="xs:string">
+              <xs:pattern value="TRANSFORMATION_[0-9]+_\([0-9]+_MVA\)"/>
+              <xs:pattern value="EB_TRANSFORMATOR_[0-9]+"/>
+            </xs:restriction>
+          </ids:value>
+        </ids:property>
+        <ids:property>
+          <ids:propertySet>
+            <ids:simpleValue>ANLAGE_BETRIEB</ids:simpleValue>
+          </ids:propertySet>
+          <ids:baseName>
+            <ids:simpleValue>TECHNISCHERPLATZ (-)</ids:simpleValue>
+          </ids:baseName>
+          <ids:value>
+            <xs:restriction xmlns:xs="xs" base="xs:string">
+              <xs:pattern value="[A-Z]{2}[0-9]{2}-[A-Z][0-9]-[A-Z][0-9]{2}"/>
+            </xs:restriction>
+          </ids:value>
+        </ids:property>
+        <ids:property>
+          <ids:propertySet>
+            <ids:simpleValue>ANLAGE_BETRIEB</ids:simpleValue>
+          </ids:propertySet>
+          <ids:baseName>
+            <ids:simpleValue>EIGENT&#xDC;MER (-)</ids:simpleValue>
+          </ids:baseName>
+        </ids:property>
+      </ids:requirements>
+    </ids:specification>
+    <ids:specification name="IfcBuildingStorey Attributes for AUSSENBEREICH" ifcVersion="IFC4" identifier="SPEC-005C">
+      <ids:description>Ensure IfcBuildingStorey in an IFCBUILDING with NAME AUSSENBEREICH has correct attributes</ids:description>
+      <ids:instructions>NAME must follow the pattern GLEISPISTE_###, STRASSE_###, UMZ&#xC4;UNUNG_###, BRANDSCHUTZ_###, BELEUCHTUNG_###, TERRAIN_### and TECHNISCHERPLATZ must follow @@##-@#</ids:instructions>
+      <ids:cardinality>Required</ids:cardinality>
+      <ids:applicability>
+        <ids:entity>
+          <ids:name>
+            <ids:simpleValue>IFCBUILDING</ids:simpleValue>
+          </ids:name>
+        </ids:entity>
+        <ids:property>
+          <ids:propertySet>
+            <ids:simpleValue>ANLAGEKLASSE_BETRIEB</ids:simpleValue>
+          </ids:propertySet>
+          <ids:baseName>
+            <ids:simpleValue>NAME (-)</ids:simpleValue>
+          </ids:baseName>
+          <ids:value>
+            <xs:restriction xmlns:xs="xs" base="xs:string">
+              <xs:pattern value="GRUNDST&#xDC;CK"/>
+            </xs:restriction>
+          </ids:value>
+        </ids:property>
+      </ids:applicability>
+      <ids:requirements>
+        <ids:property>
+          <ids:propertySet>
+            <ids:simpleValue>ANLAGE_BETRIEB</ids:simpleValue>
+          </ids:propertySet>
+          <ids:baseName>
+            <ids:simpleValue>NAME (-)</ids:simpleValue>
+          </ids:baseName>
+          <ids:value>
+            <xs:restriction xmlns:xs="xs" base="xs:string">
+              <xs:pattern value="GLEISPISTE_[0-9]+"/>
+              <xs:pattern value="STRASSE_[0-9]+"/>
+              <xs:pattern value="UMZ&#xC4;UNUNG_[0-9]+"/>
+              <xs:pattern value="BRANDSCHUTZ_[0-9]+"/>
+              <xs:pattern value="BELEUCHTUNG_[0-9]+"/>
+              <xs:pattern value="TERRAIN_[0-9]+"/>
+            </xs:restriction>
+          </ids:value>
+        </ids:property>
+        <ids:property>
+          <ids:propertySet>
+            <ids:simpleValue>ANLAGE_BETRIEB</ids:simpleValue>
+          </ids:propertySet>
+          <ids:baseName>
+            <ids:simpleValue>TECHNISCHERPLATZ (-)</ids:simpleValue>
+          </ids:baseName>
+          <ids:value>
+            <xs:restriction xmlns:xs="xs" base="xs:string">
+              <xs:pattern value="[A-Z]{2}[0-9]{2}-[A-Z][0-9]"/>
+            </xs:restriction>
+          </ids:value>
+        </ids:property>
+        <ids:property>
+          <ids:propertySet>
+            <ids:simpleValue>ANLAGE_BETRIEB</ids:simpleValue>
+          </ids:propertySet>
+          <ids:baseName>
+            <ids:simpleValue>EIGENT&#xDC;MER (-)</ids:simpleValue>
+          </ids:baseName>
+        </ids:property>
+      </ids:requirements>
+    </ids:specification>
+    <ids:specification name="IfcBuildingStorey Attributes for GEB&#xC4;UDE" ifcVersion="IFC4" identifier="SPEC-005D">
+      <ids:description>Ensure IfcBuildingStorey in an IFCBUILDING with NAME GEB&#xC4;UDE has correct attributes</ids:description>
+      <ids:instructions>NAME must follow the pattern 02_UNTERGESCHOSS, 01_UNTERGESCHOSS, ERDGESCHOSS, 1_OBERGESCHOSS, 02_OBERGESCHOSS, AUSSENBEREICH and TECHNISCHERPLATZ must follow @@##-@#-@@##</ids:instructions>
+      <ids:cardinality>Required</ids:cardinality>
+      <ids:applicability>
+        <ids:entity>
+          <ids:name>
+            <ids:simpleValue>IFCBUILDING</ids:simpleValue>
+          </ids:name>
+        </ids:entity>
+        <ids:property>
+          <ids:propertySet>
+            <ids:simpleValue>ANLAGEKLASSE_BETRIEB</ids:simpleValue>
+          </ids:propertySet>
+          <ids:baseName>
+            <ids:simpleValue>NAME (-)</ids:simpleValue>
+          </ids:baseName>
+          <ids:value>
+            <xs:restriction xmlns:xs="xs" base="xs:string">
+              <xs:enumeration value="BETRIEBSGEB&#xC4;UDE"/>
+              <xs:enumeration value="GROSSRELAISTATION"/>
+              <xs:enumeration value="AUTOWASCHANLAGE"/>
+              <xs:enumeration value="EIGENBEDARFSGEB&#xC4;UDE"/>
+              <xs:enumeration value="WERKSTATTGEB&#xC4;UDE"/>
+              <xs:enumeration value="FREILEITERGEB&#xC4;UDE"/>
+            </xs:restriction>
+          </ids:value>
+        </ids:property>
+      </ids:applicability>
+      <ids:requirements>
+        <ids:property>
+          <ids:propertySet>
+            <ids:simpleValue>ANLAGE_BETRIEB</ids:simpleValue>
+          </ids:propertySet>
+          <ids:baseName>
+            <ids:simpleValue>NAME (-)</ids:simpleValue>
+          </ids:baseName>
+          <ids:value>
+            <xs:restriction xmlns:xs="xs" base="xs:string">
+              <xs:enumeration value="02_UNTERGESCHOSS"/>
+              <xs:enumeration value="01_UNTERGESCHOSS"/>
+              <xs:enumeration value="ERDGESCHOSS"/>
+              <xs:enumeration value="1_OBERGESCHOSS"/>
+              <xs:enumeration value="02_OBERGESCHOSS"/>
+              <xs:enumeration value="AUSSENBEREICH"/>
+            </xs:restriction>
+          </ids:value>
+        </ids:property>
+        <ids:property>
+          <ids:propertySet>
+            <ids:simpleValue>ANLAGE_BETRIEB</ids:simpleValue>
+          </ids:propertySet>
+          <ids:baseName>
+            <ids:simpleValue>TECHNISCHERPLATZ (-)</ids:simpleValue>
+          </ids:baseName>
+          <ids:value>
+            <xs:restriction xmlns:xs="xs" base="xs:string">
+              <xs:pattern value="[A-Z]{2}[0-9]{2}-[A-Z][0-9]-[A-Z][0-9]{2}"/>
+            </xs:restriction>
+          </ids:value>
+        </ids:property>
+        <ids:property>
+          <ids:propertySet>
+            <ids:simpleValue>ANLAGE_BETRIEB</ids:simpleValue>
+          </ids:propertySet>
+          <ids:baseName>
+            <ids:simpleValue>EIGENT&#xDC;MER (-)</ids:simpleValue>
+          </ids:baseName>
+        </ids:property>
+      </ids:requirements>
+    </ids:specification>
+    <ids:specification name="IfcSystem Attributes for GEB&#xC4;UDETECHNIK" ifcVersion="IFC4" identifier="SPEC-005E">
+      <ids:description>Ensure IfcSystem in an IFCBUILDING with NAME GEB&#xC4;UDETECHNIK has correct attributes</ids:description>
+      <ids:instructions>NAME must follow the pattern KLIMAANLAGE_###, BRANDSCHUTZANLAGE_###, ELEKTROANLAGE_###, WASSERVERSORGUNGSANLAGE_###, WASSERANLAGE_###, L&#xDC;FTUNGSANLAGE_###, ENTRAUCHUNGSANLAGE_###, &#xD6;L-AUFFANGANLAGE_###, KRANANLAGE_###, ZUTRITTKONTROLLSYSTEM_### and TECHNISCHERPLATZ must follow @@##-@#-@@##</ids:instructions>
+      <ids:cardinality>Required</ids:cardinality>
+      <ids:applicability>
+        <ids:entity>
+          <ids:name>
+            <ids:simpleValue>IFCBUILDING</ids:simpleValue>
+          </ids:name>
+        </ids:entity>
+        <ids:property>
+          <ids:propertySet>
+            <ids:simpleValue>ANLAGEKLASSE_BETRIEB</ids:simpleValue>
+          </ids:propertySet>
+          <ids:baseName>
+            <ids:simpleValue>NAME (-)</ids:simpleValue>
+          </ids:baseName>
+          <ids:value>
+            <xs:restriction xmlns:xs="xs" base="xs:string">
+              <xs:pattern value="GEB&#xC4;UDETECHNIK_BETRIEBSGEB&#xC4;UDE"/>
+            </xs:restriction>
+          </ids:value>
+        </ids:property>
+      </ids:applicability>
+      <ids:requirements>
+        <ids:property>
+          <ids:propertySet>
+            <ids:simpleValue>ANLAGE_BETRIEB</ids:simpleValue>
+          </ids:propertySet>
+          <ids:baseName>
+            <ids:simpleValue>NAME (-)</ids:simpleValue>
+          </ids:baseName>
+          <ids:value>
+            <xs:restriction xmlns:xs="xs" base="xs:string">
+              <xs:pattern value="KLIMAANLAGE_[0-9]+"/>
+              <xs:pattern value="BRANDSCHUTZANLAGE_[0-9]+"/>
+              <xs:pattern value="ELEKTROANLAGE_[0-9]+"/>
+              <xs:pattern value="WASSERVERSORGUNGSANLAGE_[0-9]+"/>
+              <xs:pattern value="WASSERANLAGE_[0-9]+"/>
+              <xs:pattern value="L&#xDC;FTUNGSANLAGE_[0-9]+"/>
+              <xs:pattern value="ENTRAUCHUNGSANLAGE_[0-9]+"/>
+              <xs:pattern value="&#xD6;L-AUFFANGANLAGE_[0-9]+"/>
+              <xs:pattern value="KRANANLAGE_[0-9]+"/>
+              <xs:pattern value="ZUTRITTKONTROLLSYSTEM_[0-9]+"/>
+            </xs:restriction>
+          </ids:value>
+        </ids:property>
+        <ids:property>
+          <ids:propertySet>
+            <ids:simpleValue>ANLAGE_BETRIEB</ids:simpleValue>
+          </ids:propertySet>
+          <ids:baseName>
+            <ids:simpleValue>TECHNISCHERPLATZ (-)</ids:simpleValue>
+          </ids:baseName>
+          <ids:value>
+            <xs:restriction xmlns:xs="xs" base="xs:string">
+              <xs:pattern value="[A-Z]{2}[0-9]{2}-[A-Z][0-9]-[A-Z][0-9]{2}"/>
+            </xs:restriction>
+          </ids:value>
+        </ids:property>
+        <ids:property>
+          <ids:propertySet>
+            <ids:simpleValue>ANLAGE_BETRIEB</ids:simpleValue>
+          </ids:propertySet>
+          <ids:baseName>
+            <ids:simpleValue>EIGENT&#xDC;MER (-)</ids:simpleValue>
+          </ids:baseName>
+        </ids:property>
+      </ids:requirements>
+    </ids:specification>
+  </ids:specifications>
+</ids:ids>
