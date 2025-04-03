@@ -11,6 +11,42 @@
     <ids:description>IDS file for validating elements in substations</ids:description>
   </ids:info>
   <ids:specifications xmlns:ids="ids">
+    <ids:specification name="FAIL. Multiple appicabilities failing" ifcVersion="IFC4" identifier="FAIL-001">
+      <ids:description>FAIL</ids:description>
+      <ids:instructions>FAIL</ids:instructions>
+      <ids:applicability>
+        <ids:entity>
+          <ids:name>
+            <ids:simpleValue>IFCBUILDINGELEMENTPROXY</ids:simpleValue>
+          </ids:name>
+        </ids:entity>
+        <ids:property>
+          <ids:propertySet>
+            <ids:simpleValue>BAUTEIL_BETRIEB</ids:simpleValue>
+          </ids:propertySet>
+          <ids:baseName>
+            <ids:simpleValue>NAME (-)</ids:simpleValue>
+          </ids:baseName>
+            <ids:value>
+              <xs:restriction base="xs:string">
+                <xs:pattern value="4536315"></xs:pattern>
+              </xs:restriction>
+            </ids:value>
+        </ids:property>
+      </ids:applicability>
+      <ids:requirements>
+        <ids:attribute instructions="Name">
+          <ids:name>
+            <ids:simpleValue>STATUS (-)</ids:simpleValue>
+          </ids:name>
+          <ids:value>
+            <xs:restriction xmlns:xs="xs" base="xs:string">
+              <xs:pattern value="PROJEKTIERUNG"/>
+            </xs:restriction>
+          </ids:value>
+        </ids:attribute>
+      </ids:requirements>
+    </ids:specification>
     <ids:specification name="SLAB that fails" ifcVersion="IFC4" identifier="SPEC-600">
       <ids:description>IFCSLAB that should fail</ids:description>
       <ids:instructions>Ensure fail.</ids:instructions>
