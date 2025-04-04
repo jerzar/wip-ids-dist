@@ -20639,15 +20639,10 @@ function requireStrnum() {
   if (hasRequiredStrnum) return strnum;
   hasRequiredStrnum = 1;
   const hexRegex = /^[-+]?0x[a-fA-F0-9]+$/;
-  const numRegex = /^([\-\+])?(0*)(\.[0-9]+([eE]\-?[0-9]+)?|[0-9]+(\.[0-9]+([eE]\-?[0-9]+)?)?)$/;
-  if (!Number.parseInt && window.parseInt) {
-    Number.parseInt = window.parseInt;
-  }
-  if (!Number.parseFloat && window.parseFloat) {
-    Number.parseFloat = window.parseFloat;
-  }
+  const numRegex = /^([\-\+])?(0*)([0-9]*(\.[0-9]*)?)$/;
   const consider = {
     hex: true,
+    // oct: false,
     leadingZeros: true,
     decimalPoint: ".",
     eNotation: true
@@ -20658,24 +20653,37 @@ function requireStrnum() {
     if (!str || typeof str !== "string") return str;
     let trimmedStr = str.trim();
     if (options.skipLike !== void 0 && options.skipLike.test(trimmedStr)) return str;
+    else if (str === "0") return 0;
     else if (options.hex && hexRegex.test(trimmedStr)) {
-      return Number.parseInt(trimmedStr, 16);
+      return parse_int(trimmedStr, 16);
+    } else if (trimmedStr.search(/[eE]/) !== -1) {
+      const notation = trimmedStr.match(/^([-\+])?(0*)([0-9]*(\.[0-9]*)?[eE][-\+]?[0-9]+)$/);
+      if (notation) {
+        if (options.leadingZeros) {
+          trimmedStr = (notation[1] || "") + notation[3];
+        } else {
+          if (notation[2] === "0" && notation[3][0] === ".") ;
+          else {
+            return str;
+          }
+        }
+        return options.eNotation ? Number(trimmedStr) : str;
+      } else {
+        return str;
+      }
     } else {
       const match = numRegex.exec(trimmedStr);
       if (match) {
         const sign = match[1];
         const leadingZeros = match[2];
         let numTrimmedByZeros = trimZeros(match[3]);
-        const eNotation = match[4] || match[6];
         if (!options.leadingZeros && leadingZeros.length > 0 && sign && trimmedStr[2] !== ".") return str;
         else if (!options.leadingZeros && leadingZeros.length > 0 && !sign && trimmedStr[1] !== ".") return str;
+        else if (options.leadingZeros && leadingZeros === str) return 0;
         else {
           const num = Number(trimmedStr);
           const numStr = "" + num;
           if (numStr.search(/[eE]/) !== -1) {
-            if (options.eNotation) return num;
-            else return str;
-          } else if (eNotation) {
             if (options.eNotation) return num;
             else return str;
           } else if (trimmedStr.indexOf(".") !== -1) {
@@ -20685,13 +20693,10 @@ function requireStrnum() {
             else return str;
           }
           if (leadingZeros) {
-            if (numTrimmedByZeros === numStr) return num;
-            else if (sign + numTrimmedByZeros === numStr) return num;
-            else return str;
+            return numTrimmedByZeros === numStr || sign + numTrimmedByZeros === numStr ? num : str;
+          } else {
+            return trimmedStr === numStr || trimmedStr === sign + numStr ? num : str;
           }
-          if (trimmedStr === numStr) return num;
-          else if (trimmedStr === sign + numStr) return num;
-          return str;
         }
       } else {
         return str;
@@ -20707,6 +20712,12 @@ function requireStrnum() {
       return numStr;
     }
     return numStr;
+  }
+  function parse_int(numStr, base) {
+    if (parseInt) return parseInt(numStr, base);
+    else if (Number.parseInt) return Number.parseInt(numStr, base);
+    else if (window && window.parseInt) return window.parseInt(numStr, base);
+    else throw new Error("parseInt, Number.parseInt, window.parseInt are not supported");
   }
   strnum = toNumber;
   return strnum;
@@ -22115,30 +22126,31 @@ ${tags}
     const viewpointTags = this.createViewpointTags(version);
     const labelTags = this.createLabelTags(version);
     const relatedTopicTags = this.createRelatedTopicTags(version);
-    return `
-      <?xml version="1.0" encoding="UTF-8"?>
-      <Markup>
-        <Topic Guid="${this.guid}" TopicType="${this.type}" TopicStatus="${this.status}" ${serverAssignedIdAttribute ?? ""}>
-          <Title>${this.title}</Title>
-          <CreationDate>${this.creationDate.toISOString()}</CreationDate>
-          <CreationAuthor>${this.creationAuthor}</CreationAuthor>
-          ${priorityTag ?? ""}
-          ${indexTag ?? ""}
-          ${modifiedDateTag ?? ""}
-          ${modifiedAuthorTag ?? ""}
-          ${dueDateTag ?? ""}
-          ${assignedToTag ?? ""}
-          ${descriptionTag ?? ""}
-          ${stageTag ?? ""}
-          ${labelTags}
-          ${relatedTopicTags}
-          ${version === "3" ? commentTags : ""}
-          ${version === "3" ? viewpointTags : ""}
-        </Topic>
-        ${version === "2.1" ? commentTags : ""}
-        ${version === "2.1" ? viewpointTags : ""}
-      </Markup>
-    `;
+    const xml = [
+      '<?xml version="1.0" encoding="UTF-8"?>',
+      "<Markup>",
+      `  <Topic Guid="${this.guid}" TopicType="${this.type}" TopicStatus="${this.status}" ${serverAssignedIdAttribute ?? ""}>`,
+      `    <Title>${this.title}</Title>`,
+      `    <CreationDate>${this.creationDate.toISOString()}</CreationDate>`,
+      `    <CreationAuthor>${this.creationAuthor}</CreationAuthor>`,
+      priorityTag ?? "",
+      indexTag ?? "",
+      modifiedDateTag ?? "",
+      modifiedAuthorTag ?? "",
+      dueDateTag ?? "",
+      assignedToTag ?? "",
+      descriptionTag ?? "",
+      stageTag ?? "",
+      labelTags,
+      relatedTopicTags,
+      version === "3" ? commentTags : "",
+      version === "3" ? viewpointTags : "",
+      "  </Topic>",
+      version === "2.1" ? commentTags : "",
+      version === "2.1" ? viewpointTags : "",
+      "</Markup>"
+    ].filter(Boolean).join("\n");
+    return xml;
   }
 };
 /**
@@ -22527,9 +22539,10 @@ const _BCFTopics = class _BCFTopics extends Component {
    * Exports the given topics to a BCF (Building Collaboration Format) zip file.
    *
    * @param topics - The topics to export. Defaults to all topics in the list.
+   * @param imgBlob - Binary image data (e.g., JPEG) to use as the viewpoint snapshot.
    * @returns A promise that resolves to a Blob containing the exported BCF zip file.
    */
-  async export(topics = this.list.values()) {
+  async export(topics = this.list.values(), imgBlob) {
     const zip = new JSZip();
     zip.file(
       "bcf.version",
@@ -22539,7 +22552,12 @@ const _BCFTopics = class _BCFTopics extends Component {
     </Version>`
     );
     zip.file("bcf.extensions", this.serializeExtensions());
-    const imgBlob = await this.createBlankJPEG();
+    if (!imgBlob) {
+      const image = await fetch(
+        "https://thatopen.github.io/engine_components/resources/favicon.ico"
+      );
+      imgBlob = await image.arrayBuffer();
+    }
     const viewpoints = this.components.get(Viewpoints);
     for (const topic of topics) {
       const topicFolder = zip.folder(topic.guid);
@@ -22555,10 +22573,6 @@ const _BCFTopics = class _BCFTopics extends Component {
     }
     const content = await zip.generateAsync({ type: "blob" });
     return content;
-  }
-  async createBlankJPEG() {
-    const blankJPEGBase64 = "/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDABALDA4MChAODQ4SEhAREhISGBYVFxgYGBcXGhocGh0aGhkdIS4lHB4rJjgmKy8xNTU1HCQ7QDs0Py40NTEBDAwMEA8QHhISHjQhJCQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NP/AABEIAKgBLAMBIgACEQEDEQH/xAAZAAEBAQEBAQAAAAAAAAAAAAAABgEDBQT/xAAmEAABAwMDBAIDAAAAAAAAAAABAgMEAAUREiExQQYHExQiIzJx/8QAGAEBAQEBAQAAAAAAAAAAAAAAAQIDBAX/xAAdEQEBAAICAgMAAAAAAAAAAAAAARECAxIhMUEi/9oADAMBAAIRAxEAPwD7jREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQf/Z";
-    return Buffer.from(blankJPEGBase64, "base64");
   }
   serializeExtensions() {
     const types = [...this.config.types].map((type) => `<TopicType>${type}</TopicType>`).join("\n");
@@ -25659,19 +25673,26 @@ ${colorTags}
     const selectionTags = (await this.createComponentTags("selection")).trim();
     const exceptionTags = (await this.createComponentTags("exception")).trim();
     const colorTags = this.createColorTags();
-    return `<?xml version="1.0" encoding="UTF-8"?>
-    <VisualizationInfo Guid="${this.guid}">
-      <Components>
-        ${version === "2.1" ? viewSetupHints : ""}
-        ${selectionTags.length !== 0 ? `<Selection>${selectionTags}</Selection>` : ""}
-        <Visibility DefaultVisibility="${this.defaultVisibility}">
-          ${version === "3" ? viewSetupHints : ""}
-          ${exceptionTags.length !== 0 ? `<Exceptions>${exceptionTags}</Exceptions>` : ""}
-        </Visibility>
-        ${colorTags}
-      </Components>
-      ${cameraXML}
-    </VisualizationInfo>`;
+    const xml = [
+      '<?xml version="1.0" encoding="UTF-8"?>',
+      `<VisualizationInfo Guid="${this.guid}">`,
+      "  <Components>",
+      version === "2.1" ? `    ${viewSetupHints}` : "",
+      selectionTags.length !== 0 ? `    <Selection>
+${selectionTags}
+    </Selection>` : "",
+      `    <Visibility DefaultVisibility="${this.defaultVisibility}">`,
+      version === "3" ? `      ${viewSetupHints}` : "",
+      exceptionTags.length !== 0 ? `      <Exceptions>
+${exceptionTags}
+      </Exceptions>` : "",
+      "    </Visibility>",
+      colorTags ? `    ${colorTags}` : "",
+      "  </Components>",
+      `  ${cameraXML}`,
+      "</VisualizationInfo>"
+    ].filter(Boolean).join("\n");
+    return xml;
   }
 }
 class ViewpointsConfigManager extends Configurator {
