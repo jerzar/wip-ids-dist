@@ -17,7 +17,7 @@
       <ids:applicability>
         <ids:entity>
           <ids:name>
-            <ids:simpleValue>IFCELECTRICAPPLIANCE</ids:simpleValue>
+            <ids:simpleValue>IFCBUILDINGELEMENTPROXY</ids:simpleValue>
           </ids:name>
         </ids:entity>
         <ids:property>
@@ -25,11 +25,11 @@
               <ids:simpleValue>BAUTEIL_BETRIEB</ids:simpleValue>
             </ids:propertySet>
             <ids:baseName>
-              <ids:simpleValue>NAME (-)</ids:simpleValue>
+              <ids:simpleValue>EQUIPMENTNUMMER (-)</ids:simpleValue>
             </ids:baseName>
             <ids:value>
               <xs:restriction base="xs:string">
-                <xs:pattern value=".*WANDLER.*"></xs:pattern>
+                <xs:pattern value=".*"/>
               </xs:restriction>
             </ids:value>
         </ids:property>
@@ -45,6 +45,53 @@
             </xs:restriction>
           </ids:value>
         </ids:attribute>
+      </ids:requirements>
+    </ids:specification>
+        <ids:specification name="PASS. Parent-child validaiton. ASSEMBLY" ifcVersion="IFC4" identifier="PASS-001">
+      <ids:description>PASS</ids:description>
+      <ids:instructions>PASS</ids:instructions>
+      <ids:cardinality>Required</ids:cardinality>
+      <ids:applicability>
+        <ids:entity>
+          <ids:name>
+            <ids:simpleValue>IFCBUILDINGELEMENTPROXY</ids:simpleValue>
+          </ids:name>
+        </ids:entity>
+        <ids:property>
+            <ids:propertySet>
+              <ids:simpleValue>BAUTEIL_PROJEKTIERUNG</ids:simpleValue>
+            </ids:propertySet>
+            <ids:baseName>
+              <ids:simpleValue>STATUS (-)</ids:simpleValue>
+            </ids:baseName>
+            <ids:value>
+              <xs:restriction base="xs:string">
+                <xs:pattern value="BESTAND"/>
+              </xs:restriction>
+            </ids:value>
+        </ids:property>
+      </ids:applicability>
+      <ids:requirements>
+        <ids:partOf relation="IFCRELAGGREGATES">
+          <ids:entity>
+          <ids:name>
+            <ids:simpleValue>IFCELEMENTASSEMBLY</ids:simpleValue>
+           </ids:name>
+         </ids:entity>
+        <ids:property>
+            <ids:propertySet>
+              <ids:simpleValue>KOMPONENTE_AUSFÜHRUNG</ids:simpleValue>
+            </ids:propertySet>
+            <ids:baseName>
+              <ids:simpleValue>NAME (-)</ids:simpleValue>
+            </ids:baseName>
+            <ids:value>
+              <xs:restriction base="xs:string">
+                <xs:pattern value="STÜTZISOLATOREN"/>
+              </xs:restriction>
+            </ids:value>
+        </ids:property>
+        </ids:partOf>
       </ids:requirements>
     </ids:specification>
     <ids:specification name="SLAB that fails" ifcVersion="IFC4" identifier="SPEC-600">
